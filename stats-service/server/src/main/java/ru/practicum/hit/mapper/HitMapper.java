@@ -10,7 +10,7 @@ import ru.practicum.hit.model.EndpointHit;
 public interface HitMapper {
 
     @Mapping(target = "timestamp", source = "timestamp", dateFormat = "yyyy-MM-dd HH:mm:ss")
-    EndpointHitDto EndpointHitToDto(EndpointHit endpointHit);
+    EndpointHitDto endpointHitToDto(EndpointHit endpointHit);
 
     @Mapping(target = "timestamp", source = "timestamp", dateFormat = "yyyy-MM-dd HH:mm:ss")
     EndpointHit dtoToEndpointHit(EndpointHitDto endpointHitDto);

@@ -30,7 +30,7 @@ public class HitServiceImpl implements HitService {
     @Override
     public EndpointHitDto addNewEndpointHit(EndpointHitDto endpointHitDto) {
         EndpointHit endpointHitSaved = hitRepository.save(hitMapper.dtoToEndpointHit(endpointHitDto));
-        return hitMapper.EndpointHitToDto(endpointHitSaved);
+        return hitMapper.endpointHitToDto(endpointHitSaved);
 
     }
 

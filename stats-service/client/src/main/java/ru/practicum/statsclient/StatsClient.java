@@ -29,7 +29,6 @@ public class StatsClient extends BaseClient {
 
     public ResponseEntity<List<ViewStatsDto>> getStats(String start, String end, List<String> uris, Boolean unique) {
         RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
         Map<String, Object> parameters = Map.of(
                 "start", start,
                 "end", end,
@@ -53,7 +52,6 @@ public class StatsClient extends BaseClient {
             return responseBuilder.body(result.getBody());
         }
         return responseBuilder.build();
-
     }
 
     public ResponseEntity<Object> addNewEndpointHit(EndpointHitDto endpointHit) {

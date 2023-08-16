@@ -1,7 +1,6 @@
 package ru.practicum.mainservice;
 
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
 public class Pages {
     public static PageRequest getPage(int from, int size) {

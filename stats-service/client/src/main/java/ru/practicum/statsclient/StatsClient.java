@@ -21,10 +21,10 @@ public class StatsClient extends BaseClient {
     private final String serverUrl;
 
     @Autowired
-    public StatsClient(@Value("${ewm-stats.url}") String serverUrl, RestTemplateBuilder builder, String serverUrl1) {
+    public StatsClient(@Value("${ewm-stats.url}") String serverUrl, RestTemplateBuilder builder) {
         super(builder.uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
                 .requestFactory(HttpComponentsClientHttpRequestFactory::new).build());
-        this.serverUrl = serverUrl1;
+        this.serverUrl = serverUrl;
     }
 
     public ResponseEntity<List<ViewStatsDto>> getStats(String start, String end, List<String> uris, Boolean unique) {

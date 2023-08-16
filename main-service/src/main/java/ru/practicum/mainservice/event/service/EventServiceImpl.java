@@ -211,13 +211,8 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event not found with id = " + eventId));
         if (updateEventAdminRequest.getEventDate() != null) {
-//            if (updateEventAdminRequest.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
-//                throw new ConditionsNotMetException("The date and time for which the event is scheduled" +
-//                        " cannot be earlier than one hours from the current moment.");
-//            }
             checkEventDate(updateEventAdminRequest.getEventDate(), 1);
         }
-//        Event eventUpdate = eventMapper.(updateEventAdminRequest);
 
         if (!event.getState().toString().equals(State.PENDING.toString())) {
             throw new ConditionsNotMetException("Cannot publish the event because it's not in the right state: " + event.getState());
@@ -322,13 +317,7 @@ public class EventServiceImpl implements EventService {
         }
         addNewEndpointHit(request);
         log.info("Get event: {}", event.getId());
-//        ResponseEntity<Object> response = statsClient.getStats(event.getCreatedOn().toString(),
-//                LocalDateTime.now().plusDays(1).toString(), List.of(request.getRequestURI()), null);
-//        Object responseBody = response.getBody();
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        Collection<ViewStatsDto> viewStatsDtos = objectMapper.convertValue(responseBody, new TypeReference<Collection<ViewStatsDto>>() {});
 
-//        eventFullDto.setViews(viewStatsDtos.size());
         EventFullDto eventFullDto = eventMapper.eventToEventFullDto(event);
         eventFullDto.setConfirmedRequests(getConfirmedRequests(event.getId()));
 
@@ -410,58 +399,52 @@ public class EventServiceImpl implements EventService {
 
             }
         }
-            return new EventRequestStatusUpdateResult(confirmedRequests, rejectedRequests);
-        }
+        return new EventRequestStatusUpdateResult(confirmedRequests, rejectedRequests);
+    }
 
-        private void checkEventDate (LocalDateTime eventDate,int hour){
-            if (eventDate != null && eventDate.isBefore(LocalDateTime.now().plusHours(hour))) {
-                throw new IncorrectRequestException("EventDate should be in the future");
-            }
-        }
-
-        private void addNewEndpointHit (HttpServletRequest request){
-
-            EndpointHitDto endpointHit = new EndpointHitDto("ewm-main-service",
-                    request.getRequestURI(),
-                    request.getRemoteAddr(),
-                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-            ResponseEntity<Object> response = statsClient.addNewEndpointHit(endpointHit);
-            log.info("Добавлена статистика {}", response);
-        }
-
-        private int getConfirmedRequests (Long eventId){
-            List<Request> requests = requestRepository.findRequestByEventIdAndStatus(eventId, Status.CONFIRMED);
-            return requests.size();
-        }
-
-        private Map<Long, Long> getViews ( long eventId){
-            List<String> uris = List.of("/events/" + eventId);
-            String startDate = LocalDateTime.now().minusYears(1000).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-            String endDate = LocalDateTime.now().plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-            List<ViewStatsDto> response = statsClient.getStats(startDate, endDate, uris, true).getBody();
-
-            ObjectMapper objectMapper = new ObjectMapper();
-            Collection<ViewStatsDto> viewStatsDtos = objectMapper.convertValue(response,
-                    new TypeReference<>() {
-                    });
-
-            Map<Long, Long> viewsMap = new HashMap<>();
-
-            if (viewStatsDtos.size() > 0) {
-
-                for (ViewStatsDto viewStatsDto : viewStatsDtos) {
-                    String str = viewStatsDto.getUri();
-                    int index = str.lastIndexOf("/") + 1;
-                    Long id = Long.parseLong(str.substring(index));
-                    viewsMap.put(id, viewStatsDto.getHits());
-                }
-
-                //            views = new ArrayList<>(viewStatsDtos).get(0).getHits();
-//            List<Map<String, Object>> body = (List<Map<String, Object>>) stats.getBody();
-//            if (body != null && !body.isEmpty()) {
-//                Map<String, Object> map = body.get(0);
-//                views = (int) map.get("hits");
-            }
-            return viewsMap;
+    private void checkEventDate(LocalDateTime eventDate, int hour) {
+        if (eventDate != null && eventDate.isBefore(LocalDateTime.now().plusHours(hour))) {
+            throw new IncorrectRequestException("EventDate should be in the future");
         }
     }
+
+    private void addNewEndpointHit(HttpServletRequest request) {
+
+        EndpointHitDto endpointHit = new EndpointHitDto("ewm-main-service",
+                request.getRequestURI(),
+                request.getRemoteAddr(),
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        ResponseEntity<Object> response = statsClient.addNewEndpointHit(endpointHit);
+        log.info("Добавлена статистика {}", response);
+    }
+
+    private int getConfirmedRequests(Long eventId) {
+        List<Request> requests = requestRepository.findRequestByEventIdAndStatus(eventId, Status.CONFIRMED);
+        return requests.size();
+    }
+
+    private Map<Long, Long> getViews(long eventId) {
+        List<String> uris = List.of("/events/" + eventId);
+        String startDate = LocalDateTime.now().minusYears(1000).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        String endDate = LocalDateTime.now().plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        List<ViewStatsDto> response = statsClient.getStats(startDate, endDate, uris, true).getBody();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Collection<ViewStatsDto> viewStatsDtos = objectMapper.convertValue(response,
+                new TypeReference<>() {
+                });
+
+        Map<Long, Long> viewsMap = new HashMap<>();
+
+        if (viewStatsDtos.size() > 0) {
+
+            for (ViewStatsDto viewStatsDto : viewStatsDtos) {
+                String str = viewStatsDto.getUri();
+                int index = str.lastIndexOf("/") + 1;
+                Long id = Long.parseLong(str.substring(index));
+                viewsMap.put(id, viewStatsDto.getHits());
+            }
+        }
+        return viewsMap;
+    }
+}

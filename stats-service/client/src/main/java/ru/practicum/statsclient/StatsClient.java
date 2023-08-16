@@ -27,13 +27,6 @@ public class StatsClient extends BaseClient {
         this.serverUrl = serverUrl1;
     }
 
-//    @Autowired
-//    public StatsClient(@Value("http://localhost:9090") String serverUrl, RestTemplateBuilder builder, String serverUrl1) {
-//        super(builder.uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
-//                .requestFactory(HttpComponentsClientHttpRequestFactory::new).build());
-//        this.serverUrl = serverUrl1;
-//    }
-
     public ResponseEntity<List<ViewStatsDto>> getStats(String start, String end, List<String> uris, Boolean unique) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();

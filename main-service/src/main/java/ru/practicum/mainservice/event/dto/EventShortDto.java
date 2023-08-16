@@ -22,7 +22,6 @@ public class EventShortDto {
     private Boolean paid;
     private String title;
     private int views;
-//    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
 }

@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Slf4j
-public class CompilationServiceImpl implements CompilationService{
+public class CompilationServiceImpl implements CompilationService {
 
     private final CompilationRepository compilationRepository;
     private final CompilationMapper compilationMapper;
@@ -58,7 +58,7 @@ public class CompilationServiceImpl implements CompilationService{
     public CompilationDto updateCompilation(Long compId, UpdateCompilationRequest updateCompilationRequest) {
         CompilationDto compilationDto = getCompilationById(compId);
         Compilation compilation = compilationMapper.compilationDtoToCompilation(compilationDto);
-    if (updateCompilationRequest.getPinned() != null) {
+        if (updateCompilationRequest.getPinned() != null) {
             compilation.setPinned(updateCompilationRequest.getPinned());
         }
         if (updateCompilationRequest.getTitle() != null) {
@@ -66,10 +66,10 @@ public class CompilationServiceImpl implements CompilationService{
         }
         if (updateCompilationRequest.getEvents() != null) {
             List<Long> eventsId = updateCompilationRequest.getEvents();
-                List<Event> events = new ArrayList<>();
-                for (Long eventId : eventsId) {
-                    events.add(eventMapper.eventFullDtoToEvent(eventService.getEventFullById(eventId)));
-                }
+            List<Event> events = new ArrayList<>();
+            for (Long eventId : eventsId) {
+                events.add(eventMapper.eventFullDtoToEvent(eventService.getEventFullById(eventId)));
+            }
             compilation.setEvents(events);
         }
         Compilation updatedCompilation = compilationRepository.save(compilation);

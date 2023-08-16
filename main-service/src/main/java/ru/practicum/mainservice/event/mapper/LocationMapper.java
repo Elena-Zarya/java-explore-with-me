@@ -10,5 +10,5 @@ public interface LocationMapper {
 
     Location dtoToLocation(LocationDto locationDto);
 
-    LocationDto locationToDto (Location location);
+    LocationDto locationToDto(Location location);
 }

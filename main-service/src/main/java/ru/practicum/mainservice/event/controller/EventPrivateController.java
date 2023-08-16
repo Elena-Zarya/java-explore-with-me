@@ -56,7 +56,7 @@ public class EventPrivateController {
 
     @GetMapping("/{userId}/events/{eventId}/requests")
     public ResponseEntity<List<ParticipationRequestDto>> getUserEventRequests(@PathVariable Long userId,
-                                                                               @PathVariable Long eventId) {
+                                                                              @PathVariable Long eventId) {
         log.info("Received GET request: get event requests user id {} ", userId);
         return new ResponseEntity<>(eventService.getUserEventRequests(userId, eventId), HttpStatus.OK);
     }
@@ -68,6 +68,5 @@ public class EventPrivateController {
         log.info("Received PATCH request: update event requests user id ={}", userId);
         return new ResponseEntity<>(eventService.updateUserEventRequests(userId, eventId, updateRequest), HttpStatus.OK);
     }
-
 }
 

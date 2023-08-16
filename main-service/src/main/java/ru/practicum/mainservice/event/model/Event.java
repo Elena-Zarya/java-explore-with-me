@@ -30,28 +30,22 @@ public class Event {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-//    @Column(name = "confirmed_requests")
-//    private long confirmedRequests;                    //???
-
     @Column(name = "created_on")
     private LocalDateTime createdOn;
 
     @Column
     private String description;
 
-    //    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "event_date")
     private LocalDateTime eventDate;
 
     @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JoinColumn(name = "initiator_id", nullable = false)
-//    @ToString.Exclude
     private User initiator;
 
     @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id", nullable = false)
-//    @ToString.Exclude
     private Location location;
 
     @Column
@@ -60,7 +54,6 @@ public class Event {
     @Column(name = "participant_limit")
     private Integer participantLimit;
 
-    //    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "published_on")
     private LocalDateTime publishedOn;
@@ -73,6 +66,4 @@ public class Event {
 
     @Column
     private String title;
-
-//    private Long views;              //???
 }

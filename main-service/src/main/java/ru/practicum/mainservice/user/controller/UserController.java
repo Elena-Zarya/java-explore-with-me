@@ -21,8 +21,8 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<List<UserDto>> getUsers(@RequestParam(required = false) List<Long> ids,
-                                                @RequestParam(defaultValue = "0") Integer from,
-                                                @RequestParam(defaultValue = "10") Integer size) {
+                                                  @RequestParam(defaultValue = "0") Integer from,
+                                                  @RequestParam(defaultValue = "10") Integer size) {
         log.info("Received GET-request at /admin/users endpoint");
         return new ResponseEntity<>(userService.getUsers(ids, from, size), HttpStatus.OK);
     }

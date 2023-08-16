@@ -8,6 +8,6 @@ import ru.practicum.mainservice.user.model.User;
 import java.util.List;
 
 @Repository
-public interface UserRepository  extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findAllByIdIn(List<Long> id, Pageable page);
 }

@@ -13,8 +13,6 @@ import java.util.List;
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface CompilationMapper {
 
-//    NewCompilationDto compilationToNewCompilationDto(Compilation compilation);
-
     CompilationDto compilationToCompilationDto(Compilation compilation);
 
     Compilation compilationDtoToCompilation(CompilationDto compilationDto);
@@ -26,18 +24,10 @@ public interface CompilationMapper {
         if (eventsId != null) {
             for (Long eventId : eventsId) {
                 Event event = new Event();
-                        event.setId(eventId);
+                event.setId(eventId);
                 events.add(event);
             }
         }
         return events;
     }
-
-//    default List<Long> mapEventsId(List<Event> events) {
-//        List<Long> eventsId = new ArrayList<>();
-//        for (Event event : events) {
-//            eventsId.add(event.getId());
-//        }
-//        return eventsId;
-//    }
 }

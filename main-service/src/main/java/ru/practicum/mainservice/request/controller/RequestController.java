@@ -25,7 +25,7 @@ public class RequestController {
 
     @PostMapping
     public ResponseEntity<ParticipationRequestDto> addUserRequest(@PathVariable Long userId,
-                                                                     @RequestParam Long eventId) {
+                                                                  @RequestParam Long eventId) {
         log.info("Received POST request: add request user id {} in event id {}", userId, eventId);
         return new ResponseEntity<>(requestService.addUserRequest(userId, eventId), HttpStatus.CREATED);
     }

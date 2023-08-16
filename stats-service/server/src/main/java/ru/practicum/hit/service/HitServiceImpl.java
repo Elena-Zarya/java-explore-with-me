@@ -38,7 +38,7 @@ public class HitServiceImpl implements HitService {
     @Override
     public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         PageRequest pageable = PageRequest.of(0, 10);
-        if (end.isBefore(start)){
+        if (end.isBefore(start)) {
             throw new IncorrectRequestException("the start date must be before end");
         }
         if (unique) {

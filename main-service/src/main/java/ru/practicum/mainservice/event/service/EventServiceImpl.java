@@ -89,7 +89,16 @@ public class EventServiceImpl implements EventService {
         event.setCreatedOn(LocalDateTime.now());
         event.setInitiator(userMapper.userDtoToUser(userService.getUserById(userId)));
         event.setState(State.PENDING);
-        event.setRequestModeration(true);
+        if (event.getRequestModeration() == null) {
+            event.setRequestModeration(true);
+        }
+        if (event.getPaid() == null) {
+            event.setPaid(false);
+        }
+        if (event.getParticipantLimit() == null) {
+            event.setParticipantLimit(0);
+        }
+
         try {
             Location location = locationRepository.save(event.getLocation());
             event.setLocation(location);
@@ -214,17 +223,20 @@ public class EventServiceImpl implements EventService {
             checkEventDate(updateEventAdminRequest.getEventDate(), 1);
         }
 
-        if (!event.getState().toString().equals(State.PENDING.toString())) {
-            throw new ConditionsNotMetException("Cannot publish the event because it's not in the right state: " + event.getState());
+        if (event.getState().equals(State.PUBLISHED)) {
+            throw new ConditionsNotMetException("Only pending or canceled events can be changed");
         } else {
             if (updateEventAdminRequest.getStateAction() != null && updateEventAdminRequest.getStateAction()
                     .equals(StateAction.PUBLISH_EVENT.toString())) {
+                if (event.getState().equals(State.CANCELED)) {
+                    throw new ConditionsNotMetException("Only pending events can be published");
+                }
                 event.setState(State.PUBLISHED);
                 event.setPublishedOn(LocalDateTime.now());
             }
             if (updateEventAdminRequest.getStateAction() != null && updateEventAdminRequest.getStateAction()
                     .equals(StateAction.REJECT_EVENT.toString())) {
-                if (event.getPublishedOn().isBefore(LocalDateTime.now())) {
+                if (event.getPublishedOn() != null && event.getPublishedOn().isBefore(LocalDateTime.now())) {
                     throw new ConditionsNotMetException("The event cannot be rejected because it has already been published.");
                 }
                 event.setState(State.CANCELED);
@@ -315,7 +327,6 @@ public class EventServiceImpl implements EventService {
         if (!event.getState().equals(State.PUBLISHED)) {
             throw new NotFoundException(String.format("Event with id=%d is not published", id));
         }
-        addNewEndpointHit(request);
         log.info("Get event: {}", event.getId());
 
         EventFullDto eventFullDto = eventMapper.eventToEventFullDto(event);
@@ -325,6 +336,7 @@ public class EventServiceImpl implements EventService {
         if (!viewsMap.isEmpty()) {
             eventFullDto.setViews(Math.toIntExact(viewsMap.get(event.getId())));
         }
+        addNewEndpointHit(request);
         log.info("Get event: {}", event.getId());
         return eventFullDto;
     }
@@ -349,7 +361,7 @@ public class EventServiceImpl implements EventService {
         if (event.getInitiator().getId() != initiator.getId()) {
             throw new NotFoundException("Event by user id = " + userId + " not found");
         }
-        List<ParticipationRequestDto> requests = requestRepository.findAllByRequesterIdAndEventId(userId, eventId)
+        List<ParticipationRequestDto> requests = requestRepository.findAllByEventIdAndInitiatorId(eventId, userId)
                 .stream().map(requestMapper::requestToParticipationRequestDto)
                 .collect(Collectors.toList());
         log.info("Get requests user id {} by event id {}", userId, eventId);
@@ -390,13 +402,12 @@ public class EventServiceImpl implements EventService {
                     }
                     if (updateRequest.getStatus().equals(Status.REJECTED)) {
                         requestDto.setStatus(Status.REJECTED);
-                        requestsList.add(requestDto);
+                        rejectedRequests.add(requestDto);
                     }
                 }
                 Request request = requestMapper.dtoToRequest(requestDto);
                 request.setEvent(eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("Event with id=13 was not found")));
                 requestRepository.save(request);
-
             }
         }
         return new EventRequestStatusUpdateResult(confirmedRequests, rejectedRequests);

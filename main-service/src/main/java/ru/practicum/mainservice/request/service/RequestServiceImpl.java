@@ -55,6 +55,11 @@ public class RequestServiceImpl implements RequestService {
         EventFullDto event = eventService.getEventFullById(eventId);
         UserDto requester = userService.getUserById(userId);
 
+        if (event.getParticipantLimit() > 0 && event.getConfirmedRequests() == event.getParticipantLimit()) {
+            log.info("Event id={} has reached participant limit", eventId);
+            throw new ConflictException("Event id= " + eventId + " has reached participant limit");
+        }
+
         List<Request> userEventRequests = requestRepository.findAllByRequesterIdAndEventId(userId, eventId);
         if (!userEventRequests.isEmpty()) {
             log.info("Request with requesterId={} and eventId={} already exist", userId, eventId);
@@ -72,9 +77,10 @@ public class RequestServiceImpl implements RequestService {
         newRequest.setEvent(eventMapper.eventFullDtoToEvent(event));
         newRequest.setRequester(userMapper.userDtoToUser(requester));
         newRequest.setCreated(LocalDateTime.now());
-        newRequest.setStatus(Status.PENDING);
-        if (event.getParticipantLimit() == 0) {
+        if (event.getParticipantLimit() == 0 || !event.getRequestModeration()) {
             newRequest.setStatus(Status.CONFIRMED);
+        } else {
+            newRequest.setStatus(Status.PENDING);
         }
         Request savedRequest = requestRepository.save(newRequest);
         log.info("Saved new request id = {}", savedRequest.getId());

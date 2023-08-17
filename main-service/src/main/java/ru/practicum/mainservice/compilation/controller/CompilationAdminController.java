@@ -10,6 +10,8 @@ import ru.practicum.mainservice.compilation.dto.NewCompilationDto;
 import ru.practicum.mainservice.compilation.dto.UpdateCompilationRequest;
 import ru.practicum.mainservice.compilation.service.CompilationService;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping(path = "/admin/compilations")
 @Slf4j
@@ -19,7 +21,7 @@ public class CompilationAdminController {
     private final CompilationService compilationService;
 
     @PostMapping
-    public ResponseEntity<CompilationDto> addNewCompilation(@RequestBody NewCompilationDto newCompilationDto) {
+    public ResponseEntity<CompilationDto> addNewCompilation(@RequestBody @Valid NewCompilationDto newCompilationDto) {
         log.info("Received POST request: add new compilations {}", newCompilationDto);
         return new ResponseEntity<>(compilationService.addNewCompilation(newCompilationDto), HttpStatus.CREATED);
     }

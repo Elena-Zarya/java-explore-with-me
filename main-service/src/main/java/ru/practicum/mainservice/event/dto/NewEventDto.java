@@ -28,7 +28,7 @@ public class NewEventDto {
     private LocationDto location;
     private boolean paid;
     @PositiveOrZero
-    private long participantLimit;
+    private int participantLimit;
     private boolean requestModeration;
     @Size(min = 3, max = 120)
     @NotBlank

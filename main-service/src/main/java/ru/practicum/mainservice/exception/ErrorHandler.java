@@ -40,11 +40,11 @@ public class ErrorHandler {
         return new ApiError(HttpStatus.BAD_REQUEST.toString(), "Incorrectly made request. \"%s\".", e.getMessage(),
                 LocalDateTime.now().toString());
     }
-//
-//    @ExceptionHandler
-//    @ResponseStatus(HttpStatus.CONFLICT)
-//    public ApiError handleConflictException(final ConditionsNotMetException e) {
-//        return new ApiError(HttpStatus.CONFLICT.toString(), "For the requested operation the conditions are not met. \"%s\"",
-//                e.getMessage(), LocalDateTime.now().toString());
-//    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError handleConflictException(final ConditionsNotMetException e) {
+        return new ApiError(HttpStatus.CONFLICT.toString(), "For the requested operation the conditions are not met. \"%s\"",
+                e.getMessage(), LocalDateTime.now().toString());
+    }
 }

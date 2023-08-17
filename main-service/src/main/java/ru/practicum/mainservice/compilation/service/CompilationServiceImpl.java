@@ -15,6 +15,7 @@ import ru.practicum.mainservice.compilation.repository.CompilationRepository;
 import ru.practicum.mainservice.event.mapper.EventMapper;
 import ru.practicum.mainservice.event.model.Event;
 import ru.practicum.mainservice.event.service.EventService;
+import ru.practicum.mainservice.exception.IncorrectRequestException;
 import ru.practicum.mainservice.exception.NotFoundException;
 
 import java.util.ArrayList;
@@ -62,6 +63,9 @@ public class CompilationServiceImpl implements CompilationService {
             compilation.setPinned(updateCompilationRequest.getPinned());
         }
         if (updateCompilationRequest.getTitle() != null) {
+            if(updateCompilationRequest.getTitle().length() > 50){
+                throw new IncorrectRequestException("Length title should be less than 50");
+            }
             compilation.setTitle(updateCompilationRequest.getTitle());
         }
         if (updateCompilationRequest.getEvents() != null) {

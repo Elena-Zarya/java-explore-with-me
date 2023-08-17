@@ -12,6 +12,9 @@ import ru.practicum.mainservice.category.dto.NewCategoryDto;
 import ru.practicum.mainservice.category.mapper.CategoryMapper;
 import ru.practicum.mainservice.category.model.Category;
 import ru.practicum.mainservice.category.repository.CategoryRepository;
+import ru.practicum.mainservice.event.model.Event;
+import ru.practicum.mainservice.event.repository.EventRepository;
+import ru.practicum.mainservice.exception.ConditionsNotMetException;
 import ru.practicum.mainservice.exception.ConflictException;
 import ru.practicum.mainservice.exception.NotFoundException;
 
@@ -27,6 +30,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
+    private final EventRepository eventRepository;
 
     @Transactional
     @Override
@@ -45,6 +49,10 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto deleteCategory(long categoryId) {
         CategoryDto categoryDto = getCategoryById(categoryId);
+        List<Event> events = eventRepository.findAllByCategoryId(categoryId);
+        if (!events.isEmpty()) {
+            throw new ConditionsNotMetException("The category is not empty");
+        }
         log.info("Deleted category with id = {}", categoryId);
         categoryRepository.deleteById(categoryId);
         return categoryDto;
@@ -53,11 +61,15 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     @Override
     public CategoryDto updateCategory(long categoryId, NewCategoryDto newCategoryDto) {
-        getCategoryById(categoryId);
+        CategoryDto categoryDto = getCategoryById(categoryId);
         Category categoryUpdate = categoryMapper.newDtoToCategory(newCategoryDto);
-        categoryUpdate = categoryRepository.save(categoryUpdate);
-        log.info("Update category: {}", categoryUpdate.getName());
-        return categoryMapper.categoryToDto(categoryUpdate);
+        if (!categoryDto.getName().equals(newCategoryDto.getName())) {
+            categoryUpdate = categoryRepository.save(categoryUpdate);
+            log.info("Update category id: {}", categoryId);
+            return categoryMapper.categoryToDto(categoryUpdate);
+        }
+        log.info("Update category id: {}", categoryId);
+        return categoryDto;
     }
 
     @Override

@@ -63,7 +63,7 @@ public class CompilationServiceImpl implements CompilationService {
             compilation.setPinned(updateCompilationRequest.getPinned());
         }
         if (updateCompilationRequest.getTitle() != null) {
-            if(updateCompilationRequest.getTitle().length() > 50){
+            if (updateCompilationRequest.getTitle().length() > 50) {
                 throw new IncorrectRequestException("Length title should be less than 50");
             }
             compilation.setTitle(updateCompilationRequest.getTitle());

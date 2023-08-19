@@ -10,6 +10,7 @@ import ru.practicum.mainservice.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "events")
@@ -66,4 +67,48 @@ public class Event {
 
     @Column
     private String title;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Event event = (Event) o;
+
+        if (!Objects.equals(id, event.id)) return false;
+        if (!Objects.equals(annotation, event.annotation)) return false;
+        if (!Objects.equals(category, event.category)) return false;
+        if (!Objects.equals(createdOn, event.createdOn)) return false;
+        if (!Objects.equals(description, event.description)) return false;
+        if (!Objects.equals(eventDate, event.eventDate)) return false;
+        if (!Objects.equals(initiator, event.initiator)) return false;
+        if (!Objects.equals(location, event.location)) return false;
+        if (!Objects.equals(paid, event.paid)) return false;
+        if (!Objects.equals(participantLimit, event.participantLimit))
+            return false;
+        if (!Objects.equals(publishedOn, event.publishedOn)) return false;
+        if (!Objects.equals(requestModeration, event.requestModeration))
+            return false;
+        if (state != event.state) return false;
+        return Objects.equals(title, event.title);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (annotation != null ? annotation.hashCode() : 0);
+        result = 31 * result + (category != null ? category.hashCode() : 0);
+        result = 31 * result + (createdOn != null ? createdOn.hashCode() : 0);
+        result = 31 * result + (description != null ? description.hashCode() : 0);
+        result = 31 * result + (eventDate != null ? eventDate.hashCode() : 0);
+        result = 31 * result + (initiator != null ? initiator.hashCode() : 0);
+        result = 31 * result + (location != null ? location.hashCode() : 0);
+        result = 31 * result + (paid != null ? paid.hashCode() : 0);
+        result = 31 * result + (participantLimit != null ? participantLimit.hashCode() : 0);
+        result = 31 * result + (publishedOn != null ? publishedOn.hashCode() : 0);
+        result = 31 * result + (requestModeration != null ? requestModeration.hashCode() : 0);
+        result = 31 * result + (state != null ? state.hashCode() : 0);
+        result = 31 * result + (title != null ? title.hashCode() : 0);
+        return result;
+    }
 }

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.mainservice.event.dto.EventFullDto;
 import ru.practicum.mainservice.event.mapper.EventMapper;
+import ru.practicum.mainservice.event.model.State;
 import ru.practicum.mainservice.event.service.EventService;
 import ru.practicum.mainservice.exception.ConflictException;
 import ru.practicum.mainservice.exception.NotFoundException;
@@ -69,9 +70,9 @@ public class RequestServiceImpl implements RequestService {
             log.info("User with id={} must not be equal to initiator", userId);
             throw new ConflictException("User with id=" + userId + " must not be equal to initiator");
         }
-        if (event.getParticipantLimit() > 0 && event.getParticipantLimit().equals(event.getConfirmedRequests())) {
-            log.info("Event with id={} has reached participant limit", eventId);
-            throw new ConflictException("Event with id= " + eventId + " has reached participant limit");
+        if (!event.getState().equals(State.PUBLISHED)) {
+            log.info("Event must be published {}", event);
+            throw new ConflictException("Event must be published");
         }
         Request newRequest = new Request();
         newRequest.setEvent(eventMapper.eventFullDtoToEvent(event));

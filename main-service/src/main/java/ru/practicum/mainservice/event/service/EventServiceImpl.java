@@ -2,6 +2,7 @@ package ru.practicum.mainservice.event.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -39,6 +40,7 @@ import ru.practicum.mainservice.user.dto.UserDto;
 import ru.practicum.mainservice.user.mapper.UserMapper;
 import ru.practicum.mainservice.user.service.UserService;
 import ru.practicum.statsclient.StatsClient;
+import ru.practicum.mainservice.event.model.QEvent;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -199,17 +201,72 @@ public class EventServiceImpl implements EventService {
                                                 LocalDateTime rangeEnd,
                                                 int from,
                                                 int size) {
-        Sort sortByCreated = Sort.by(Sort.Direction.ASC, "id");
-        PageRequest page = Pages.getPage(from, size, sortByCreated);
 
-        List<Event> eventsByParam = eventRepository.getAdminEventsByParams(users, states, categories, rangeStart, rangeEnd, page);
-        log.info("Get events list by param");
-        List<EventFullDto> eventFullDtoList = eventsByParam.stream()
+        Sort sort = Sort.by(Sort.Direction.ASC, "id");
+        PageRequest page = Pages.getPage(from, size, sort);
+
+        if (rangeStart == null) {
+            rangeStart = LocalDateTime.now().minusYears(1000);
+        }
+        if (rangeEnd == null) {
+            rangeEnd = LocalDateTime.now().plusYears(1000);
+        }
+
+        List<State> stateList = new ArrayList<>();
+        if (states != null) {
+            for (String state : states) {
+                if (state.toUpperCase(Locale.ROOT).equals("PUBLISHED")) {
+                    stateList.add(State.PUBLISHED);
+                }
+                if (state.toUpperCase(Locale.ROOT).equals("PENDING")) {
+                    stateList.add(State.PENDING);
+                }
+                if (state.toUpperCase(Locale.ROOT).equals("CANCELED")) {
+                    stateList.add(State.CANCELED);
+                }
+            }
+        }
+        BooleanExpression byUsers;
+        BooleanExpression byCategory;
+        BooleanExpression byState;
+        BooleanExpression byEventDateStart = QEvent.event.eventDate.after(rangeStart);
+        BooleanExpression byEventDateEnd = QEvent.event.eventDate.before(rangeEnd);
+
+        if (users == null) {
+            byUsers = QEvent.event.initiator.id.eq(QEvent.event.initiator.id);
+        } else {
+            byUsers = QEvent.event.initiator.id.in(users);
+        }
+        if (categories == null) {
+            byCategory = QEvent.event.category.id.eq(QEvent.event.category.id);
+        } else {
+            byCategory = QEvent.event.category.id.in(categories);
+        }
+        if (stateList.isEmpty()) {
+            byState = QEvent.event.state.eq(QEvent.event.state);
+        } else {
+            byState = QEvent.event.state.in(stateList);
+        }
+
+        List<Event> events = eventRepository.findAll(byUsers
+                .and(byCategory)
+                .and(byState)
+                .and(byEventDateStart)
+                .and(byEventDateEnd), page).toList();
+
+        List<EventFullDto> eventFullDtoList = events.stream()
                 .map(eventMapper::eventToEventFullDto)
                 .collect(Collectors.toList());
-        for (EventFullDto eventFullDtos : eventFullDtoList) {
-            eventFullDtos.setConfirmedRequests(getConfirmedRequests(eventFullDtos.getId()));
+        for (EventFullDto event : eventFullDtoList) {
+            event.setConfirmedRequests(getConfirmedRequests(event.getId()));
+            Map<Long, Long> viewsMap = getViews(event.getId());
+            if (!viewsMap.isEmpty()) {
+                event.setViews(Math.toIntExact(viewsMap.get(event.getId())));
+            }
         }
+
+        log.info("Get events list for admin, size = {}", events.size());
+
         return eventFullDtoList;
     }
 
@@ -301,21 +358,58 @@ public class EventServiceImpl implements EventService {
                                             Integer from,
                                             Integer size, HttpServletRequest request) {
 
-        Sort sortByCreated = Sort.by(Sort.Direction.DESC, "event_date");
-        PageRequest page = Pages.getPage(from, size, sortByCreated);
-        if (text != null) {
-            text = text.toUpperCase();
+        Sort sortS = Sort.by(Sort.Direction.ASC, "eventDate");
+        if (sort != null && sort.equals("VIEWS")) {
+            sortS = Sort.by(Sort.Direction.ASC, "views");
         }
-
-        if (rangeEnd != null) {
-            if (rangeEnd.isBefore(LocalDateTime.now())) {
-                throw new IncorrectRequestException("rangeEnd should be in the future");
+        if (categories != null) {
+            for (Long catId : categories) {
+                if (catId < 1) {
+                    throw new IncorrectRequestException("Caregories should is not null");
+                }
             }
         }
 
-        List<Event> eventsByParam = eventRepository.getAllEventsByParams(text, categories, paid, rangeStart, rangeEnd, LocalDateTime.now(), page);
+        if (rangeStart == null) {
+            rangeStart = LocalDateTime.now();
+        }
+        if (rangeEnd == null) {
+            rangeEnd = LocalDateTime.now().plusYears(1000);
+        }
+        if (text == null) {
+            text = "";
+        }
+
+        PageRequest page = Pages.getPage(from, size, sortS);
+
+        BooleanExpression byState = QEvent.event.state.eq(State.PUBLISHED);
+        BooleanExpression byAnnotationAnyText = QEvent.event.annotation.likeIgnoreCase("%" + text + "%");
+        BooleanExpression byDescriptionAnyText = QEvent.event.description.likeIgnoreCase("%" + text + "%");
+        BooleanExpression byEventDateStart = QEvent.event.eventDate.after(rangeStart);
+        BooleanExpression byEventDateEnd = QEvent.event.eventDate.before(rangeEnd);
+        BooleanExpression byPaid;
+
+        List<Event> events;
+
+        if (paid != null) {
+            byPaid = QEvent.event.paid.eq(paid);
+            events = eventRepository.findAll(byState
+                    .and(byPaid)
+                    .and(byEventDateStart)
+                    .and(byEventDateEnd)
+                    .and((byAnnotationAnyText).or(byDescriptionAnyText)), page).toList();
+        } else {
+            events = eventRepository.findAll(byState
+                    .and(byEventDateStart)
+                    .and(byEventDateEnd)
+                    .and((byAnnotationAnyText).or(byDescriptionAnyText)), page).toList();
+        }
+
+
         addNewEndpointHit(request);
-        return eventsByParam.stream()
+        log.info("Выдан список событий ({} шт) по запросу с фильтрами.", events.size());
+
+        return events.stream()
                 .map(eventMapper::eventToEventShortDto)
                 .collect(Collectors.toList());
     }
@@ -436,9 +530,10 @@ public class EventServiceImpl implements EventService {
 
     private Map<Long, Long> getViews(long eventId) {
         List<String> uris = List.of("/events/" + eventId);
+        String[] urisArray = uris.toArray(new String[uris.size()]);
         String startDate = LocalDateTime.now().minusYears(1000).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         String endDate = LocalDateTime.now().plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        List<ViewStatsDto> response = statsClient.getStats(startDate, endDate, uris, true).getBody();
+        List<ViewStatsDto> response = statsClient.getStats(startDate, endDate, urisArray, true).getBody();
 
         ObjectMapper objectMapper = new ObjectMapper();
         Collection<ViewStatsDto> viewStatsDtos = objectMapper.convertValue(response,

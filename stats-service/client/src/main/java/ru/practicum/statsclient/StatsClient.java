@@ -27,7 +27,7 @@ public class StatsClient extends BaseClient {
         this.serverUrl = serverUrl;
     }
 
-    public ResponseEntity<List<ViewStatsDto>> getStats(String start, String end, List<String> uris, Boolean unique) {
+    public ResponseEntity<List<ViewStatsDto>> getStats(String start, String end, String[] uris, Boolean unique) {
         RestTemplate restTemplate = new RestTemplate();
         Map<String, Object> parameters = Map.of(
                 "start", start,
@@ -35,11 +35,10 @@ public class StatsClient extends BaseClient {
                 "uris", uris,
                 "unique", unique
         );
-        HttpEntity<ViewStatsDto> requestEntity = new HttpEntity<>(null, defaultHeaders());
         String path = serverUrl + "/stats?start={start}&end={end}&uris={uris}&unique={unique}";
 
 
-        ResponseEntity<List<ViewStatsDto>> result = restTemplate.exchange(path, HttpMethod.GET, requestEntity,
+        ResponseEntity<List<ViewStatsDto>> result = restTemplate.exchange(path, HttpMethod.GET, null,
                 new ParameterizedTypeReference<>() {
                 }, parameters);
         if (result.getStatusCode().is2xxSuccessful()) {

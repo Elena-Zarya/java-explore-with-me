@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.EndpointHitDto;
 import ru.practicum.dto.ViewStatsDto;
+import ru.practicum.exception.IncorrectRequestException;
 import ru.practicum.hit.mapper.HitMapper;
 import ru.practicum.hit.mapper.ViewStatsMapper;
 import ru.practicum.hit.model.EndpointHit;
@@ -37,6 +38,9 @@ public class HitServiceImpl implements HitService {
     @Override
     public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         PageRequest pageable = PageRequest.of(0, 10);
+        if (end.isBefore(start)) {
+            throw new IncorrectRequestException("the start date must be before end");
+        }
         if (unique) {
             List<ViewStats> viewStatsList = hitRepository.findUniqueViewStats(start, end, uris, pageable);
             return viewStatsList.stream()

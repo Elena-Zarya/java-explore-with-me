@@ -1,9 +1,9 @@
-package ru.practicum;
+package ru.practicum.mainservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"ru.practicum.mainservice", "ru.practicum.statsclient"})
 public class MainServer {
 
     public static void main(String[] args) {

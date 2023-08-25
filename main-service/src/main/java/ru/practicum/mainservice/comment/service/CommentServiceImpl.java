@@ -26,6 +26,7 @@ import ru.practicum.mainservice.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -101,7 +102,7 @@ public class CommentServiceImpl implements CommentService {
         UserDto userDto = userService.getUserById(userId);
 
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new NotFoundException("Comment with id = " + commentId + " not found"));
-        if (comment.getAuthor().getId() != userId) {
+        if (!Objects.equals(comment.getAuthor().getId(), userId)) {
             throw new IncorrectRequestException("Comment with id = " + commentId + " and author id = " + userId + " not found");
         }
         log.info("Get comment id {}", commentId);

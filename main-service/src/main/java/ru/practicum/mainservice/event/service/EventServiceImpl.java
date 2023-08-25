@@ -21,7 +21,7 @@ import ru.practicum.mainservice.event.mapper.EventMapper;
 import ru.practicum.mainservice.event.mapper.LocationMapper;
 import ru.practicum.mainservice.event.model.Event;
 import ru.practicum.mainservice.event.model.Location;
-import ru.practicum.mainservice.event.model.State;
+import ru.practicum.mainservice.State;
 import ru.practicum.mainservice.event.model.StateAction;
 import ru.practicum.mainservice.event.repository.EventRepository;
 import ru.practicum.mainservice.event.repository.LocationRepository;

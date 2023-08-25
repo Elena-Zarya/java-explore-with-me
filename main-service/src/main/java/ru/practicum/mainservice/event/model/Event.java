@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.practicum.mainservice.State;
 import ru.practicum.mainservice.category.model.Category;
 import ru.practicum.mainservice.user.model.User;
 

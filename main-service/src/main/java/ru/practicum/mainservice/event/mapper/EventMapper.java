@@ -25,4 +25,6 @@ public interface EventMapper {
     default Long mapCategoryToId(Category category) {
         return category.getId();
     }
+
+    Event eventShortDtoToEvent(EventFullDto eventShortDto);
 }

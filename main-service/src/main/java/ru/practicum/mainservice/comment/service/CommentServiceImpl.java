@@ -41,6 +41,7 @@ public class CommentServiceImpl implements CommentService {
     private final EventMapper eventMapper;
     private final UserService userService;
     private final UserMapper userMapper;
+    private static final int COUNT_YEARS = 1000;
 
     @Override
     public List<CommentShortDto> getAllCommentsByEvent(Long eventId, Integer from, Integer size) {
@@ -129,10 +130,10 @@ public class CommentServiceImpl implements CommentService {
         PageRequest page = Pages.getPage(from, size, sort);
 
         if (rangeStart == null) {
-            rangeStart = LocalDateTime.now().minusYears(1000);
+            rangeStart = LocalDateTime.now().minusYears(COUNT_YEARS);
         }
         if (rangeEnd == null) {
-            rangeEnd = LocalDateTime.now().plusYears(1000);
+            rangeEnd = LocalDateTime.now().plusYears(COUNT_YEARS);
         }
 
         BooleanExpression byUser;

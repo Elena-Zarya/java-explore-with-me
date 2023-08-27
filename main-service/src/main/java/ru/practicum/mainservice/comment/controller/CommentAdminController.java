@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.mainservice.comment.dto.CommentFullDto;
 import ru.practicum.mainservice.comment.dto.UpdateAdminCommentDto;
 import ru.practicum.mainservice.comment.service.CommentService;
-import ru.practicum.mainservice.State;
+import ru.practicum.mainservice.shared.State;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;

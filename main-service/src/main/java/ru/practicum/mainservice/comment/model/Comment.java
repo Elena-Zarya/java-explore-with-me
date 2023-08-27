@@ -4,7 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.practicum.mainservice.State;
+import org.hibernate.annotations.Type;
+import ru.practicum.mainservice.shared.State;
 import ru.practicum.mainservice.event.model.Event;
 import ru.practicum.mainservice.user.model.User;
 
@@ -38,6 +39,7 @@ public class Comment {
     private LocalDateTime createdOn;
 
     @Enumerated(EnumType.STRING)
+    @Type(type = "ru.practicum.mainservice.shared.CustomEnum")
     private State state;
 
     @Override

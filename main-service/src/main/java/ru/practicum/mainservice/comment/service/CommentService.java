@@ -1,6 +1,6 @@
 package ru.practicum.mainservice.comment.service;
 
-import ru.practicum.mainservice.State;
+import ru.practicum.mainservice.shared.State;
 import ru.practicum.mainservice.comment.dto.*;
 
 import java.time.LocalDateTime;

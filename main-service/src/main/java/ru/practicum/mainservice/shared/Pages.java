@@ -1,4 +1,4 @@
-package ru.practicum.mainservice;
+package ru.practicum.mainservice.shared;
 
 import org.springframework.data.domain.PageRequest;
 

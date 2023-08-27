@@ -3,7 +3,7 @@ package ru.practicum.mainservice.comment.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.mainservice.State;
+import ru.practicum.mainservice.shared.State;
 
 import javax.validation.constraints.Size;
 

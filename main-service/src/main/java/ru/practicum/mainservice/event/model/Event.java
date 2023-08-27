@@ -5,7 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.practicum.mainservice.State;
+import org.hibernate.annotations.Type;
+import ru.practicum.mainservice.shared.State;
 import ru.practicum.mainservice.category.model.Category;
 import ru.practicum.mainservice.user.model.User;
 
@@ -32,6 +33,7 @@ public class Event {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "created_on")
     private LocalDateTime createdOn;
 
@@ -64,6 +66,7 @@ public class Event {
     private Boolean requestModeration;
 
     @Enumerated(EnumType.STRING)
+    @Type(type = "ru.practicum.mainservice.shared.CustomEnum")
     private State state;
 
     @Column
